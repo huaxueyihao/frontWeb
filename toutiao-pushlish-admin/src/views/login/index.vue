@@ -69,13 +69,12 @@ export default {
     login () {
       this.loginLoading = true
       login(this.user).then(res => {
-        console.log(res)
         this.$message({
           message: '登录成功',
           type: 'success'
         })
         this.loginLoading = false
-
+        window.localStorage.setItem('user', 'beaer token')
         this.$router.push('/')
       }).catch(err => {
         console.log('登录失败', err)

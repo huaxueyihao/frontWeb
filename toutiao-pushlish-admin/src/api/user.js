@@ -7,3 +7,14 @@ export const login = data => {
     data
   })
 }
+
+export const getUserProfile = () => {
+  const user = window.localStorage.getItem('user')
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/user/profile',
+    headers: {
+      Authorization: user
+    }
+  })
+}

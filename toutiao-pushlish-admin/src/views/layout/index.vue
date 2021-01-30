@@ -11,8 +11,8 @@
 
         <el-dropdown>
           <div class="avatar-wrap">
-            <img class="avatar" src="" alt="" />
-            <span>用户昵称</span>
+            <img class="avatar" :src="user.photo" alt="" />
+            <span>{{user.name}}</span>
           </div>
           <!-- <span class="el-dropdown-link">
             下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
@@ -35,6 +35,7 @@
 
 <script>
 import AppAside from './components/aside'
+import { getUserProfile } from '@/api/user'
 
 export default {
   name: 'LayoutIndex',
@@ -44,28 +45,31 @@ export default {
   data () {
     // 这里存放数据
     return {
-
+      user: {
+        photo: 'https://img04.sogoucdn.com/app/a/100520093/fb41c7c77a2454f7-01eba5833e7e38bc-f23635998ba2ba38fef4a7d7c4da1ff6.jpg',
+        name: '哈哈'
+      }
     }
   },
   // 监听属性 类似于data概念
   computed: {},
   // 监控data中的数据变化
   watch: {},
-  // 方法集合
-  methods: {},
   // 生命周期 - 创建完成（可以访问当前this实例）
-  created () {},
+  created () {
+    this.loadUserProfile()
+  },
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted () {
 
   },
-  beforeCreate () {}, // 生命周期 - 创建之前
-  beforeMount () {}, // 生命周期 - 挂载之前
-  beforeUpdate () {}, // 生命周期 - 更新之前
-  updated () {}, // 生命周期 - 更新之后
-  beforeDestroy () {}, // 生命周期 - 销毁之前
-  destroyed () {}, // 生命周期 - 销毁完成
-  activated () {} // 如果页面有keep-alive缓存功能，这个函数会触发
+  methods: {
+    loadUserProfile () {
+      getUserProfile().then(res => {
+        // console.log(res)
+      })
+    }
+  }
 }
 </script>
 <style lang='less' scoped>
