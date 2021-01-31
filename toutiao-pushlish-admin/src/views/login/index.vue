@@ -26,7 +26,7 @@ export default {
     return {
       user: {
         mobile: '13911111111',
-        code: '123456',
+        code: '246810',
         agree: true
       },
       checked: false,
@@ -74,7 +74,7 @@ export default {
           type: 'success'
         })
         this.loginLoading = false
-        window.localStorage.setItem('user', 'beaer token')
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
         this.$router.push('/')
       }).catch(err => {
         console.log('登录失败', err)

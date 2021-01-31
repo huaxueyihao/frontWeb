@@ -5,6 +5,7 @@
     text-color="#fff"
     active-text-color="#ffd04b"
     router
+    :collapse="isCollapse"
     >
     <el-menu-item index="/">
       <i class="el-icon-setting"></i>
@@ -41,9 +42,12 @@
 export default {
   name: 'AppAside',
   components: {},
+  props: ['is-collapse'],
   data () {
     // 这里存放数据
-    return {}
+    return {
+      // isCollapse: false
+    }
   },
   // 监听属性 类似于data概念
   computed: {},
