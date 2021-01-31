@@ -26,7 +26,9 @@
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
-      <el-main class="main">Main</el-main>
+      <el-main class="main">
+        <router-view/>
+      </el-main>
     </el-container>
   </el-container>
   <!-- <div class='layout-container'>
