@@ -59,6 +59,9 @@
           prop="date"
           label="封面"
           >
+          <template slot-scope="scope">
+            <img class="article-cover" :src="scope.row.cover.images[0]" alt=""/>
+          </template>
         </el-table-column>
         <el-table-column
           prop="title"
@@ -68,6 +71,9 @@
         <el-table-column
           prop="status"
           label="状态">
+          <template slot-scope="scope">
+            <el-tag :type="articleStatus[scope.row.status].type">{{ articleStatus[scope.row.status].text }}</el-tag>
+          </template>
         </el-table-column>
         <el-table-column
           prop="address"
@@ -80,6 +86,19 @@
         <el-table-column
           prop=""
           label="操作">
+          <template>
+            <el-button
+              size="mini"
+              circle
+              icon="el-icon-edit"
+              type="primary"></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              circle
+              icon="el-icon-delete"
+              ></el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- /数据列表 -->
@@ -131,7 +150,14 @@ export default {
         name: '王小虎',
         address: '上海市普陀区金沙江路 1516 弄'
       }],
-      articles: []
+      articles: [],
+      articleStatus: [
+        { status: 0, text: '草稿', type: 'info' },
+        { status: 1, text: '待审核', type: '' },
+        { status: 2, text: '审核通过', type: 'success' },
+        { status: 3, text: '审核失败', type: 'warning' },
+        { status: 4, text: '已删除', type: 'danger' }
+      ]
     }
   },
   // 监听属性 类似于data概念
@@ -144,6 +170,10 @@ export default {
       getArticles().then(res => {
         this.articles = res.data.data.results
       })
+    },
+
+    onSubmit () {
+
     }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
@@ -168,5 +198,10 @@ export default {
 
 .list-table {
   margin-bottom: 20px;
+}
+
+.article-cover {
+  width: 100px;
+  background-size: cover;
 }
 </style>
