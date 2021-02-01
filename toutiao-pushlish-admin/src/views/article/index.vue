@@ -23,8 +23,8 @@
         </el-form-item>
         <el-form-item label="频道">
           <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option :v-for="(channel, index) in channels" :key="index"  label="channel.name" value="channel.id">
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期">
@@ -45,7 +45,7 @@
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        根据筛选条件共查询到 46147 条结果：
+        根据筛选条件共查询到 {{totalCount}} 条结果：
       </div>
       <!-- 数据列表 -->
       <el-table
@@ -107,7 +107,10 @@
       <el-pagination
         layout="prev, pager, next"
         background
-        :total="1000">
+        :total="totalCount"
+        @current-change="onCurrentChange"
+        :page-size="pageSize"
+        >
       </el-pagination>
       <!-- /列表分页 -->
     </el-card>
@@ -115,7 +118,7 @@
 </template>
 
 <script>
-import { getArticles } from '@/api/article'
+import { getArticles, getArticleChannels } from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -133,23 +136,7 @@ export default {
         resource: '',
         desc: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }],
+      tableData: [],
       articles: [],
       articleStatus: [
         { status: 0, text: '草稿', type: 'info' },
@@ -157,7 +144,11 @@ export default {
         { status: 2, text: '审核通过', type: 'success' },
         { status: 3, text: '审核失败', type: 'warning' },
         { status: 4, text: '已删除', type: 'danger' }
-      ]
+      ],
+      totalCount: 0,
+      pageSize: 10,
+      status: null,
+      channels: []
     }
   },
   // 监听属性 类似于data概念
@@ -166,15 +157,30 @@ export default {
   watch: {},
   // 方法集合
   methods: {
-    loadArticles () {
-      getArticles().then(res => {
-        this.articles = res.data.data.results
+    loadArticles (page = 1) {
+      getArticles({
+        page,
+        per_page: this.pageSize
+      }).then(res => {
+        const { results, total_count: totalCount } = res.data.data
+        this.articles = results
+        this.totalCount = totalCount
       })
     },
 
     onSubmit () {
 
+    },
+
+    onCurrentChange (page) {
+      this.loadArticles(page)
+    },
+    loadChannels () {
+      getArticleChannels().then(res => {
+        this.channels = res.data.data.channels
+      })
     }
+
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created () {
