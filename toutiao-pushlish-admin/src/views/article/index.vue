@@ -12,32 +12,34 @@
       <!-- 数据筛选表单 -->
       <el-form ref="form" :model="form" label-width="40px" size="mini">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道">
-          <el-select v-model="form.region" placeholder="请选择频道">
-            <el-option :v-for="(channel, index) in channels" :key="index"  label="channel.name" value="channel.id">
+          <el-select v-model="channelId" placeholder="请选择频道">
+            <el-option :label="channel.name" :value="channel.id"  v-for="(channel, index) in channels" :key="index" >
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
-            v-model="form.date1"
+            v-model="rangeDate"
             type="datetimerange"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            :default-time="['12:00:00']">
+            :default-time="['12:00:00']"
+            format="yyyy-MM-dd"
+            >
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
+          <el-button type="primary" @click="loadArticles(1)" :disabled="loading">查询</el-button>
         </el-form-item>
       </el-form>
       <!-- /数据筛选表单 -->
@@ -54,6 +56,7 @@
         style="width: 100%"
         class="list-table"
         size="mini"
+        v-loading="loading"
       >
         <el-table-column
           prop="date"
@@ -86,7 +89,7 @@
         <el-table-column
           prop=""
           label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-button
               size="mini"
               circle
@@ -97,6 +100,7 @@
               type="danger"
               circle
               icon="el-icon-delete"
+              @click="onDeleteArticle(scope.row.id)"
               ></el-button>
           </template>
         </el-table-column>
@@ -110,6 +114,7 @@
         :total="totalCount"
         @current-change="onCurrentChange"
         :page-size="pageSize"
+        :disabled="loading"
         >
       </el-pagination>
       <!-- /列表分页 -->
@@ -118,7 +123,7 @@
 </template>
 
 <script>
-import { getArticles, getArticleChannels } from '@/api/article'
+import { getArticles, getArticleChannels, deleteArticle } from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -148,7 +153,10 @@ export default {
       totalCount: 0,
       pageSize: 10,
       status: null,
-      channels: []
+      channels: [],
+      channelId: null,
+      rangeDate: null,
+      loading: true
     }
   },
   // 监听属性 类似于data概念
@@ -158,13 +166,20 @@ export default {
   // 方法集合
   methods: {
     loadArticles (page = 1) {
+      this.loading = true
       getArticles({
         page,
-        per_page: this.pageSize
+        per_page: this.pageSize,
+        status: this.status,
+        channel_id: this.channelId,
+        begin_pubdate: this.rangeDate ? this.rangeDate[0] : null,
+        end_pubdate: this.rangeDate ? this.rangeDate[1] : null
       }).then(res => {
         const { results, total_count: totalCount } = res.data.data
         this.articles = results
         this.totalCount = totalCount
+
+        this.loading = false
       })
     },
 
@@ -179,12 +194,34 @@ export default {
       getArticleChannels().then(res => {
         this.channels = res.data.data.channels
       })
+    },
+
+    onDeleteArticle (articleId) {
+      this.$confirm('确认删除吗', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        
+        deleteArticle(articleId).then(res => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已删除'
+        })
+      })
     }
 
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created () {
     this.loadArticles()
+    this.loadChannels()
   },
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted () {},
