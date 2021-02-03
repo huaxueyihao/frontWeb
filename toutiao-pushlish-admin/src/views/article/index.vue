@@ -115,6 +115,7 @@
         @current-change="onCurrentChange"
         :page-size="pageSize"
         :disabled="loading"
+        :current-page.sync="page"
         >
       </el-pagination>
       <!-- /列表分页 -->
@@ -202,12 +203,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        
-        deleteArticle(articleId).then(res => {
+        deleteArticle(articleId.toString()).then(res => {
           this.$message({
             type: 'success',
             message: '删除成功!'
           })
+          this.loadArticles(this.page)
         })
       }).catch(() => {
         this.$message({

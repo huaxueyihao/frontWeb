@@ -3,11 +3,23 @@
  */
 
 import axios from 'axios'
+import JSONbig from 'json-bigint'
 
 // 创建一个axios实例，说白了就是绘制了一个axios
 //
 const request = axios.create({
-  baseURL: 'http://api-toutiao-web.itheima.net'
+  baseURL: 'http://api-toutiao-web.itheima.net',
+  transformResponse: [
+    function (data) {
+      // return JSON.parse(data)
+      try {
+        return JSONbig.parse(data)
+      } catch (e) {
+        return data
+      }
+    }
+  ]
+
 })
 
 request.interceptors.request.use(
