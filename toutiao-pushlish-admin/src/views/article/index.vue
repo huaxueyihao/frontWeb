@@ -94,7 +94,9 @@
               size="mini"
               circle
               icon="el-icon-edit"
-              type="primary"></el-button>
+              type="primary"
+              @click="$router.push('/publish?id=' + scope.row.id.toString())"
+              ></el-button>
             <el-button
               size="mini"
               type="danger"
@@ -157,7 +159,8 @@ export default {
       channels: [],
       channelId: null,
       rangeDate: null,
-      loading: true
+      loading: true,
+      page: 1
     }
   },
   // 监听属性 类似于data概念
@@ -190,6 +193,7 @@ export default {
 
     onCurrentChange (page) {
       this.loadArticles(page)
+      this.page = page
     },
     loadChannels () {
       getArticleChannels().then(res => {
