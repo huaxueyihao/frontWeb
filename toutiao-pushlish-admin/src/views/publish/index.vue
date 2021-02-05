@@ -14,7 +14,8 @@
           <el-input v-model="article.title"></el-input>
         </el-form-item>
         <el-form-item label="内容">
-          <el-input type="textarea" v-model="article.content"></el-input>
+          <!-- <el-input type="textarea" v-model="article.content"></el-input> -->
+          <el-tiptap v-model="article.content" :extensions="extensions"></el-tiptap>
         </el-form-item>
         <el-form-item label="封面">
           <el-radio-group v-model="article.cover.type">
@@ -41,10 +42,28 @@
 
 <script>
 import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
+import {
+  // necessary extensions
+  ElementTipTap,
+  Doc,
+  Text,
+  Paragraph,
+  Heading,
+  Bold,
+  Underline,
+  Italic,
+  Strike,
+  ListItem,
+  BulletList,
+  OrderedList,
+} from 'element-tiptap'
+import 'element-tiptap/lib/index.css'
 
 export default {
   name: 'PublishIndex',
-  components: {},
+  components: {
+    'el-tiptap': ElementTipTap
+  },
   data () {
     // 这里存放数据
     return {
@@ -67,7 +86,20 @@ export default {
         }
       },
       channels: null,
-      channelId: null
+      channelId: null,
+      extensions: [
+        new Doc(),
+        new Text(),
+        new Paragraph(),
+        new Heading({ level: 5 }),
+        new Bold({ bubble: true }), // render command-button in bubble menu.
+        new Underline({ bubble: true, menubar: false }), // render command-button in bubble menu but not in menubar.
+        new Italic(),
+        new Strike(),
+        new ListItem(),
+        new BulletList(),
+        new OrderedList(),
+      ],
     }
   },
   // 监听属性 类似于data概念
