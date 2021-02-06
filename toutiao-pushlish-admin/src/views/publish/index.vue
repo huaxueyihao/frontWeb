@@ -9,13 +9,14 @@
         </el-breadcrumb>
         <!-- /面包屑路径导航 -->
       </div>
-      <el-form ref="form" :model="article" label-width="40px">
-        <el-form-item label="标题">
+      <el-form ref="article" :model="article" :rules="formRules" label-width="60px">
+        <el-form-item prop="title" label="标题">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
+        <el-form-item prop="content" label="内容">
           <!-- <el-input type="textarea" v-model="article.content"></el-input> -->
-          <el-tiptap v-model="article.content" :extensions="extensions"></el-tiptap>
+          <!-- <el-tiptap v-model="article.content"></el-tiptap> -->
+          <vue-editor v-model="article.content" id="editor" useCustomImageHandler @image-added="handleImageAdded"></vue-editor>
         </el-form-item>
         <el-form-item label="封面">
           <el-radio-group v-model="article.cover.type">
@@ -25,7 +26,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item prop="channel_id" label="频道">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option :label="channel.name" :value="channel.id"  v-for="(channel, index) in channels" :key="index" >
             </el-option>
@@ -42,27 +43,14 @@
 
 <script>
 import { getArticleChannels, addArticle, getArticle, updateArticle } from '@/api/article'
-import {
-  // necessary extensions
-  ElementTipTap,
-  Doc,
-  Text,
-  Paragraph,
-  Heading,
-  Bold,
-  Underline,
-  Italic,
-  Strike,
-  ListItem,
-  BulletList,
-  OrderedList,
-} from 'element-tiptap'
-import 'element-tiptap/lib/index.css'
+import { uploadImage } from '@/api/image'
+import { VueEditor } from 'vue2-editor'
 
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTipTap
+    // 'el-tiptap': ElementTipTap
+    VueEditor
   },
   data () {
     // 这里存放数据
@@ -87,19 +75,18 @@ export default {
       },
       channels: null,
       channelId: null,
-      extensions: [
-        new Doc(),
-        new Text(),
-        new Paragraph(),
-        new Heading({ level: 5 }),
-        new Bold({ bubble: true }), // render command-button in bubble menu.
-        new Underline({ bubble: true, menubar: false }), // render command-button in bubble menu but not in menubar.
-        new Italic(),
-        new Strike(),
-        new ListItem(),
-        new BulletList(),
-        new OrderedList(),
-      ],
+      formRules: {
+        title: [
+          { required: true, message: '请输入文章标题', trigger: 'blur' },
+          { mid: 5, max: 30, message: '长度在5-30个字符', trigger: 'blur' }
+        ],
+        content: [
+          { required: true, message: '请输入文章内容', trigger: 'change' }
+        ],
+        channel_id: [
+          { required: true, message: '请输入文章频道' }
+        ]
+      }
     }
   },
   // 监听属性 类似于data概念
@@ -142,6 +129,18 @@ export default {
 
     onSubmit () {
       console.log('submit!')
+    },
+
+    handleImageAdded (file, Editor, cursorLocation, resetUploader) {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      uploadImage(formData).then(res => {
+        console.log(res)
+        const url = res.data.data.url // Get url from response
+        Editor.insertEmbed(cursorLocation, 'image', url)
+        resetUploader()
+      })
     }
   },
   // 生命周期 - 创建完成（可以访问当前this实例）
